@@ -1,5 +1,6 @@
 package com.example.demo.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.util.Objects;
@@ -14,6 +15,7 @@ public class OrderItem {
     private Integer quantity;
     private Double price;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "order_id")
     private Order order;
@@ -26,7 +28,7 @@ public class OrderItem {
     }
 
 
-    public OrderItem(Order order, Product product, Double price, Integer quantity) {
+    public OrderItem(Order order, Product product, Integer quantity, Double price) {
         this.order = order;
         this.product = product;
         this.price = price;
@@ -65,7 +67,7 @@ public class OrderItem {
         this.quantity = quantity;
     }
 
-    public Double getSubTototal() {
+    public Double getSubTotal() {
         return price * quantity;
     }
 

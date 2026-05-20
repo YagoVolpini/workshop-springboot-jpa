@@ -17,7 +17,7 @@ public class Order implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'HH:mm:ss'Z", timezone = "GMT")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "GMT")
     private Instant moment;
 
     @Enumerated(EnumType.STRING)
@@ -91,10 +91,15 @@ public class Order implements Serializable {
         this.status = status;
     }
 
+    public void addItem(Product product, Integer quantity) {
+        OrderItem orderItem = new OrderItem(this, product, quantity, product.getPrice());
+        orderItems.add(orderItem);
+    }
+
     public Double getTotal() {
         Double sum = 0.0;
         for (OrderItem orderItem : orderItems) {
-            sum += orderItem.getSubTototal();
+            sum += orderItem.getSubTotal();
         }
         return sum;
     }

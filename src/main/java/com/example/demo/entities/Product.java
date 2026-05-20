@@ -1,5 +1,6 @@
 package com.example.demo.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.io.Serializable;
@@ -25,6 +26,7 @@ public class Product implements Serializable {
     Set<Category> categories = new HashSet<Category>();
 
 
+    @JsonIgnore
     @OneToMany(mappedBy = "product")
     Set<OrderItem> items = new HashSet<>();
 
@@ -78,6 +80,30 @@ public class Product implements Serializable {
     public void setPrice(Double price) {
         this.price = price;
     }
+
+    public void setCategories(Set<Category> categories) {
+        this.categories = categories;
+    }
+
+    public Set<OrderItem> getItems() {
+        return items;
+    }
+
+    public void setItems(Set<OrderItem> items) {
+        this.items = items;
+    }
+
+    @JsonIgnore
+    public Set<Order> getOrders() {
+        Set<Order> orders = new HashSet<>();
+        for (OrderItem oi : items) {
+            orders.add(oi.getOrder());
+        }
+
+        return orders;
+    }
+
+public Set<Category> getCategories() {return categories;}
 
     @Override
     public boolean equals(Object o) {
