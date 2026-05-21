@@ -2,6 +2,9 @@ package com.example.demo.services;
 
 import com.example.demo.entities.Product;
 import com.example.demo.repositories.ProductRepository;
+import com.example.demo.services.exceptions.DatabaseException;
+import com.example.demo.services.exceptions.ResourceNotFoundException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,7 +27,7 @@ public class ProductService {
 
     public Product findById(Long id) {
         Optional<Product> obj = productRepository.findById(id);
-        return obj.get();
+        return obj.orElseThrow(() -> new ResourceNotFoundException(id));
     }
 
     @Transactional
@@ -34,14 +37,24 @@ public class ProductService {
 
     @Transactional
     public void delete(Long id) {
-        productRepository.deleteById(id);
+
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(id));
+        try {
+            productRepository.delete(product);
+            productRepository.flush();
+        } catch (DataIntegrityViolationException e) {
+            throw new DatabaseException("Cannot delete this resource because it is associated with other records");
+        }
     }
 
     @Transactional
     public Product update(Long id, Product product) {
-        Product entity = productRepository.getReferenceById(id);
+        Product entity = productRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(id));
         updateData(entity, product);
         return productRepository.save(entity);
+
     }
 
     private void updateData(Product entity, Product product) {
