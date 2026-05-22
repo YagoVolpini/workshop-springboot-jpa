@@ -1,5 +1,6 @@
 package com.example.demo.controllers;
 
+import com.example.demo.dto.OrderDTO;
 import com.example.demo.entities.Order;
 import com.example.demo.services.OrderService;
 import org.springframework.http.ResponseEntity;
@@ -21,12 +22,12 @@ public class OrderController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Order>> findAll() {
+    public ResponseEntity<List<OrderDTO>> findAll() {
         return ResponseEntity.ok(orderService.findAll());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Order> findById(@PathVariable Long id) {
+    public ResponseEntity<OrderDTO> findById(@PathVariable Long id) {
         return ResponseEntity.ok(orderService.findById(id));
     }
 }

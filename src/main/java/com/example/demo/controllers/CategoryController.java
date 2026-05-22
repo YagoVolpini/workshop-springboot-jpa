@@ -1,6 +1,6 @@
 package com.example.demo.controllers;
 
-import com.example.demo.entities.Category;
+import com.example.demo.dto.CategoryDTO;
 import com.example.demo.services.CategoryService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,12 +22,12 @@ public class CategoryController {
 
 
     @GetMapping
-    public ResponseEntity<List<Category>> findAll() {
+    public ResponseEntity<List<CategoryDTO>> findAll() {
         return ResponseEntity.ok(categoryService.findAll());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Category> findById(@PathVariable Long id) {
+    public ResponseEntity<CategoryDTO> findById(@PathVariable Long id) {
         return ResponseEntity.ok(categoryService.findById(id));
     }
 }

@@ -71,15 +71,23 @@ public class OrderItem {
         return price * quantity;
     }
 
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         OrderItem orderItem = (OrderItem) o;
-        return Objects.equals(order, orderItem.order) && Objects.equals(product, orderItem.product);
+        return Objects.equals(getId(), orderItem.getId());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(order, product);
+        return Objects.hashCode(getId());
     }
 }

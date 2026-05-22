@@ -1,6 +1,6 @@
 package com.example.demo.controllers;
 
-import com.example.demo.entities.Product;
+import com.example.demo.dto.ProductDTO;
 import com.example.demo.services.ProductService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,19 +21,19 @@ public class ProductController {
 
 
     @GetMapping
-    public ResponseEntity<List<Product>> findAll() {
+    public ResponseEntity<List<ProductDTO>> findAll() {
         return ResponseEntity.ok(productService.findAll());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Product> findById(@PathVariable Long id) {
+    public ResponseEntity<ProductDTO> findById(@PathVariable Long id) {
         return ResponseEntity.ok(productService.findById(id));
     }
 
 
     @PostMapping
-    public ResponseEntity<Product> insert(@RequestBody Product product) {
-        Product obj = productService.insert(product);
+    public ResponseEntity<ProductDTO> insert(@RequestBody ProductDTO product) {
+        ProductDTO obj = productService.insert(product);
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
                 .buildAndExpand(obj.getId())
@@ -48,7 +48,7 @@ public class ProductController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Product> update(@PathVariable Long id, @RequestBody Product product) {
+    public ResponseEntity<ProductDTO> update(@PathVariable Long id, @RequestBody ProductDTO product) {
         return ResponseEntity.ok(productService.update(id, product));
     }
 }

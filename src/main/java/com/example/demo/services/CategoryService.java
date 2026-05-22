@@ -1,11 +1,12 @@
 package com.example.demo.services;
 
+import com.example.demo.dto.CategoryDTO;
 import com.example.demo.entities.Category;
 import com.example.demo.repositories.CategoryRepository;
+import com.example.demo.services.exceptions.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class CategoryService {
@@ -17,12 +18,12 @@ public class CategoryService {
         this.categoryRepository = categoryRepository;
     }
 
-    public List<Category> findAll() {
-        return categoryRepository.findAll();
+    public List<CategoryDTO> findAll() {
+        return categoryRepository.findAll().stream().map(CategoryDTO::new).toList();
     }
 
-    public Category findById(Long id) {
-        Optional<Category> obj = categoryRepository.findById(id);
-        return obj.get();
+    public CategoryDTO findById(Long id) {
+        Category category = categoryRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(id));
+        return new CategoryDTO(category);
     }
 }

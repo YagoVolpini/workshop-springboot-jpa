@@ -1,5 +1,6 @@
 package com.example.demo.controllers;
 
+import com.example.demo.dto.PaymentDTO;
 import com.example.demo.entities.Payment;
 import com.example.demo.services.PaymentService;
 import org.springframework.http.ResponseEntity;
@@ -22,12 +23,12 @@ public class PaymentController {
 
 
     @GetMapping
-    public ResponseEntity<List<Payment>> findAll() {
+    public ResponseEntity<List<PaymentDTO>> findAll() {
         return ResponseEntity.ok(paymentService.findAll());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Payment> findById(@PathVariable Long id) {
+    public ResponseEntity<PaymentDTO> findById(@PathVariable Long id) {
         return ResponseEntity.ok(paymentService.findById(id));
     }
 }

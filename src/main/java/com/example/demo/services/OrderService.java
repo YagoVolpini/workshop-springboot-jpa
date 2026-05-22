@@ -1,11 +1,12 @@
 package com.example.demo.services;
 
+import com.example.demo.dto.OrderDTO;
 import com.example.demo.entities.Order;
 import com.example.demo.repositories.OrderRepository;
+import com.example.demo.services.exceptions.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class OrderService {
@@ -16,12 +17,13 @@ public class OrderService {
         this.orderRepository = orderRepository;
     }
 
-    public List<Order> findAll() {
-        return orderRepository.findAll();
+    public List<OrderDTO> findAll() {
+        return orderRepository.findAll()
+                .stream().map(OrderDTO::new).toList();
     }
 
-    public Order findById(Long id) {
-        Optional<Order> order = orderRepository.findById(id);
-        return order.get();
+    public OrderDTO findById(Long id) {
+        Order order = orderRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(id));
+        return new OrderDTO(order);
     }
 }

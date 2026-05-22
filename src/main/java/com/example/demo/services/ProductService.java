@@ -1,5 +1,6 @@
 package com.example.demo.services;
 
+import com.example.demo.dto.ProductDTO;
 import com.example.demo.entities.Product;
 import com.example.demo.repositories.ProductRepository;
 import com.example.demo.services.exceptions.DatabaseException;
@@ -9,7 +10,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class ProductService {
@@ -21,18 +21,21 @@ public class ProductService {
         this.productRepository = productRepository;
     }
 
-    public List<Product> findAll() {
-        return productRepository.findAll();
+    public List<ProductDTO> findAll() {
+        return productRepository.findAll().stream().map(ProductDTO::new).toList();
     }
 
-    public Product findById(Long id) {
-        Optional<Product> obj = productRepository.findById(id);
-        return obj.orElseThrow(() -> new ResourceNotFoundException(id));
+    public ProductDTO findById(Long id) {
+        Product product = productRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(id));
+        return new ProductDTO(product);
     }
 
     @Transactional
-    public Product insert(Product product) {
-        return productRepository.save(product);
+    public ProductDTO insert(ProductDTO dto) {
+        Product product = new Product();
+        updateData(dto, product);
+        product = productRepository.save(product);
+        return new ProductDTO(product);
     }
 
     @Transactional
@@ -49,18 +52,18 @@ public class ProductService {
     }
 
     @Transactional
-    public Product update(Long id, Product product) {
-        Product entity = productRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(id));
-        updateData(entity, product);
-        return productRepository.save(entity);
+    public ProductDTO update(Long id, ProductDTO dto) {
+        Product product = productRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(id));
+        updateData(dto, product);
+        product = productRepository.save(product);
+        return new ProductDTO(product);
 
     }
 
-    private void updateData(Product entity, Product product) {
-        entity.setName(product.getName());
-        entity.setDescription(product.getDescription());
-        entity.setPrice(product.getPrice());
-        entity.setImgURL(product.getImgURL());
+    private void updateData(ProductDTO dto, Product entity) {
+        entity.setName(dto.getName());
+        entity.setDescription(dto.getDescription());
+        entity.setPrice(dto.getPrice());
+        entity.setImgURL(dto.getImgURL());
     }
 }
