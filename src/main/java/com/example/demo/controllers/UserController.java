@@ -2,6 +2,7 @@ package com.example.demo.controllers;
 
 import com.example.demo.dto.UserDTO;
 import com.example.demo.services.UserService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -31,7 +32,7 @@ public class UserController {
 
 
     @PostMapping
-    public ResponseEntity<UserDTO> insert(@RequestBody UserDTO dto) {
+    public ResponseEntity<UserDTO> insert(@Valid @RequestBody UserDTO dto) {
         UserDTO obj = userService.insert(dto);
 
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
@@ -49,7 +50,7 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UserDTO> update(@PathVariable Long id, @RequestBody UserDTO dto) {
+    public ResponseEntity<UserDTO> update(@PathVariable Long id, @Valid @RequestBody UserDTO dto) {
         UserDTO obj = userService.update(id, dto);
         return ResponseEntity.ok(obj);
     }

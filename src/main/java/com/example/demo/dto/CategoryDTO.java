@@ -1,12 +1,16 @@
 package com.example.demo.dto;
 
 import com.example.demo.entities.Category;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 
 import java.io.Serializable;
 
 public class CategoryDTO implements Serializable {
 
     private Long id;
+
+    @NotBlank(message = "Name is required")
     private String name;
 
 

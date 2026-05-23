@@ -1,6 +1,9 @@
 package com.example.demo.dto;
 
 import com.example.demo.entities.Product;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -9,8 +12,15 @@ import java.util.List;
 public class ProductDTO implements Serializable {
 
     private Long id;
+
+    @NotBlank(message = "Name is required")
     private String name;
+
+    @NotBlank(message = "Description is required")
     private String description;
+
+    @Positive(message = "Price must be positive")
+    @NotNull(message = "Price is required")
     private Double price;
     private String imgURL;
     private List<CategoryDTO> categories = new ArrayList<>();

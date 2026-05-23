@@ -2,6 +2,7 @@ package com.example.demo.controllers;
 
 import com.example.demo.dto.ProductDTO;
 import com.example.demo.services.ProductService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -32,7 +33,7 @@ public class ProductController {
 
 
     @PostMapping
-    public ResponseEntity<ProductDTO> insert(@RequestBody ProductDTO product) {
+    public ResponseEntity<ProductDTO> insert(@Valid @RequestBody ProductDTO product) {
         ProductDTO obj = productService.insert(product);
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
@@ -48,7 +49,7 @@ public class ProductController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ProductDTO> update(@PathVariable Long id, @RequestBody ProductDTO product) {
+    public ResponseEntity<ProductDTO> update(@PathVariable Long id, @Valid @RequestBody ProductDTO product) {
         return ResponseEntity.ok(productService.update(id, product));
     }
 }

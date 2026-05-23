@@ -3,6 +3,7 @@ package com.example.demo.services;
 import com.example.demo.dto.ProductDTO;
 import com.example.demo.entities.Product;
 import com.example.demo.repositories.ProductRepository;
+import com.example.demo.services.exceptions.AlreadyExistsException;
 import com.example.demo.services.exceptions.DatabaseException;
 import com.example.demo.services.exceptions.ResourceNotFoundException;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -32,6 +33,11 @@ public class ProductService {
 
     @Transactional
     public ProductDTO insert(ProductDTO dto) {
+
+        if (productRepository.existsByName(dto.getName())) {
+            throw new AlreadyExistsException(String.format("Product with name %s already exists", dto.getName()));
+        }
+
         Product product = new Product();
         updateData(dto, product);
         product = productRepository.save(product);

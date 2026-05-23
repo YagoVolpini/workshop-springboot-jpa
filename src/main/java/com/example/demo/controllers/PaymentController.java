@@ -1,7 +1,6 @@
 package com.example.demo.controllers;
 
 import com.example.demo.dto.PaymentDTO;
-import com.example.demo.entities.Payment;
 import com.example.demo.services.PaymentService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

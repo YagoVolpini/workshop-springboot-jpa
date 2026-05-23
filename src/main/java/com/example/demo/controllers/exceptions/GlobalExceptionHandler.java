@@ -1,14 +1,19 @@
 package com.example.demo.controllers.exceptions;
 
 import com.example.demo.services.exceptions.DatabaseException;
+import com.example.demo.services.exceptions.AlreadyExistsException;
 import com.example.demo.services.exceptions.ResourceNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import java.time.Instant;
+import java.util.stream.Collectors;
+
+import static org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -33,5 +38,25 @@ public class GlobalExceptionHandler {
 
     }
 
+    @ExceptionHandler(AlreadyExistsException.class)
+    public ResponseEntity<StandardError> emailAlreadyExists(AlreadyExistsException e, HttpServletRequest request) {
+        String error = "Already exists";
+        HttpStatus status = HttpStatus.CONFLICT;
+        StandardError errorResponse = new StandardError(Instant.now(), status.value(), error, e.getMessage(), request.getRequestURI());
+        return ResponseEntity.status(status).body(errorResponse);
+    }
 
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<StandardError> emailAlreadyExists(MethodArgumentNotValidException e, HttpServletRequest request) {
+        String error = "Validation error";
+        HttpStatus status = UNPROCESSABLE_ENTITY;
+        String message = e.getBindingResult().getFieldErrors()
+                .stream().map(m -> m.getField() + ": " + m.getDefaultMessage())
+                .collect(Collectors.joining(", "));
+        StandardError errorResponse = new StandardError(Instant.now(), status.value(), error, message, request.getRequestURI());
+        return ResponseEntity.status(status).body(errorResponse);
+
+    }
 }
+

@@ -4,6 +4,7 @@ import com.example.demo.dto.UserDTO;
 import com.example.demo.entities.User;
 import com.example.demo.repositories.UserRepository;
 import com.example.demo.services.exceptions.DatabaseException;
+import com.example.demo.services.exceptions.AlreadyExistsException;
 import com.example.demo.services.exceptions.ResourceNotFoundException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -34,6 +35,10 @@ public class UserService {
 
     @Transactional
     public UserDTO insert(UserDTO dto) {
+        if (userRepository.existsByEmail(dto.getEmail())) {
+            throw new AlreadyExistsException(String.format("Email %s already exists", dto.getEmail()));        }
+
+
         User entity = new User();
         updateData(dto, entity);
         entity = userRepository.save(entity);
