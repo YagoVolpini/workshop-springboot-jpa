@@ -1,7 +1,8 @@
 package com.example.demo.controllers.exceptions;
 
-import com.example.demo.services.exceptions.DatabaseException;
 import com.example.demo.services.exceptions.AlreadyExistsException;
+import com.example.demo.services.exceptions.BusinessException;
+import com.example.demo.services.exceptions.DatabaseException;
 import com.example.demo.services.exceptions.ResourceNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
@@ -57,6 +58,14 @@ public class GlobalExceptionHandler {
         StandardError errorResponse = new StandardError(Instant.now(), status.value(), error, message, request.getRequestURI());
         return ResponseEntity.status(status).body(errorResponse);
 
+    }
+
+    @ExceptionHandler(BusinessException.class)
+    public ResponseEntity<StandardError> businessException(BusinessException e, HttpServletRequest request) {
+        String error = "Business rule violation";
+        HttpStatus status = HttpStatus.UNPROCESSABLE_ENTITY;
+        StandardError errorResponse = new StandardError(Instant.now(), status.value(), error, e.getMessage(), request.getRequestURI());
+        return ResponseEntity.status(status).body(errorResponse);
     }
 }
 

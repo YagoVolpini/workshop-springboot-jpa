@@ -54,7 +54,7 @@ public class CategoryService {
     }
 
     public void updateData(CategoryDTO dto, Category category) {
-        category.setName(dto.getName());
+        if (dto.getName() != null) category.setName(dto.getName());
     }
 
     @Transactional

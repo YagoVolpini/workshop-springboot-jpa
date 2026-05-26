@@ -11,6 +11,7 @@ import com.example.demo.enums.OrderStatus;
 import com.example.demo.repositories.OrderRepository;
 import com.example.demo.repositories.ProductRepository;
 import com.example.demo.repositories.UserRepository;
+import com.example.demo.services.exceptions.BusinessException;
 import com.example.demo.services.exceptions.DatabaseException;
 import com.example.demo.services.exceptions.ResourceNotFoundException;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -67,8 +68,13 @@ public class OrderService {
     @Transactional
     public OrderDTO updateStatus(Long id, OrderStatusDTO dto) {
 
+
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(id));
+
+        if (order.getStatus() == OrderStatus.DELIVERED || order.getStatus() == OrderStatus.CANCELED) {
+            throw new BusinessException("Cannot update status of a finalized order");
+        }
 
         order.setStatus(dto.getStatus());
 

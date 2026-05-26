@@ -68,9 +68,10 @@ public class ProductService {
     }
 
     private void updateData(ProductDTO dto, Product entity) {
-        entity.setName(dto.getName());
-        entity.setDescription(dto.getDescription());
-        entity.setPrice(dto.getPrice());
-        entity.setImgURL(dto.getImgURL());
+        if (dto.getName() != null) entity.setName(dto.getName());
+        if (dto.getDescription() != null) entity.setDescription(dto.getDescription());
+        if (dto.getPrice() != null) entity.setPrice(dto.getPrice());
+        if (dto.getImgURL() != null) entity.setImgURL(dto.getImgURL());
+
     }
 }
