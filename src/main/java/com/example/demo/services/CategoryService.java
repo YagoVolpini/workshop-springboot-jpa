@@ -7,9 +7,10 @@ import com.example.demo.services.exceptions.AlreadyExistsException;
 import com.example.demo.services.exceptions.DatabaseException;
 import com.example.demo.services.exceptions.ResourceNotFoundException;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class CategoryService {
@@ -21,8 +22,9 @@ public class CategoryService {
         this.categoryRepository = categoryRepository;
     }
 
-    public List<CategoryDTO> findAll() {
-        return categoryRepository.findAll().stream().map(CategoryDTO::new).toList();
+    public Page<CategoryDTO> findAll(Pageable pageable) {
+
+        return categoryRepository.findAll(pageable).map(CategoryDTO::new);
     }
 
     public CategoryDTO findById(Long id) {
@@ -30,6 +32,7 @@ public class CategoryService {
         return new CategoryDTO(category);
     }
 
+    @Transactional
     public CategoryDTO insert(CategoryDTO dto) {
         if (categoryRepository.existsByName(dto.getName())) {
             throw new AlreadyExistsException(String.format("Category with name %s already exists", dto.getName()));
@@ -42,6 +45,7 @@ public class CategoryService {
         return new CategoryDTO(category);
     }
 
+    @Transactional
     public CategoryDTO update(Long id, CategoryDTO dto) {
         Category category = categoryRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(id));
         updateData(dto, category);
@@ -53,6 +57,7 @@ public class CategoryService {
         category.setName(dto.getName());
     }
 
+    @Transactional
     public void delete(Long id) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(id));

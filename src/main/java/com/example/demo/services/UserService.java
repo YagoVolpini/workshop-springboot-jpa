@@ -3,14 +3,14 @@ package com.example.demo.services;
 import com.example.demo.dto.UserDTO;
 import com.example.demo.entities.User;
 import com.example.demo.repositories.UserRepository;
-import com.example.demo.services.exceptions.DatabaseException;
 import com.example.demo.services.exceptions.AlreadyExistsException;
+import com.example.demo.services.exceptions.DatabaseException;
 import com.example.demo.services.exceptions.ResourceNotFoundException;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 public class UserService {
@@ -21,10 +21,8 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public List<UserDTO> findAll() {
-        return userRepository.findAll().stream()
-                .map(UserDTO::new)
-                .toList();
+    public Page<UserDTO> findAll(Pageable pageable) {
+        return userRepository.findAll(pageable).map(UserDTO::new);
     }
 
 
@@ -36,7 +34,8 @@ public class UserService {
     @Transactional
     public UserDTO insert(UserDTO dto) {
         if (userRepository.existsByEmail(dto.getEmail())) {
-            throw new AlreadyExistsException(String.format("Email %s already exists", dto.getEmail()));        }
+            throw new AlreadyExistsException(String.format("Email %s already exists", dto.getEmail()));
+        }
 
 
         User entity = new User();

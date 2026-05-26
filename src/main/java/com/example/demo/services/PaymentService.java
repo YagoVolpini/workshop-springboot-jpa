@@ -4,9 +4,9 @@ import com.example.demo.dto.PaymentDTO;
 import com.example.demo.entities.Payment;
 import com.example.demo.repositories.PaymentRepository;
 import com.example.demo.services.exceptions.ResourceNotFoundException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 
 @Service
@@ -18,8 +18,8 @@ public class PaymentService {
         this.paymentRepository = paymentRepository;
     }
 
-    public List<PaymentDTO> findAll() {
-        return paymentRepository.findAll().stream().map(PaymentDTO::new).toList();
+    public Page<PaymentDTO> findAll(Pageable pageable) {
+        return paymentRepository.findAll(pageable).map(PaymentDTO::new);
     }
 
     public PaymentDTO findById(Long id) {

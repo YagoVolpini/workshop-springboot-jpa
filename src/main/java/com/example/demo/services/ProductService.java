@@ -7,10 +7,10 @@ import com.example.demo.services.exceptions.AlreadyExistsException;
 import com.example.demo.services.exceptions.DatabaseException;
 import com.example.demo.services.exceptions.ResourceNotFoundException;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 public class ProductService {
@@ -22,8 +22,9 @@ public class ProductService {
         this.productRepository = productRepository;
     }
 
-    public List<ProductDTO> findAll() {
-        return productRepository.findAll().stream().map(ProductDTO::new).toList();
+    public Page<ProductDTO> findAll(Pageable pageable) {
+
+        return productRepository.findAll(pageable).map(ProductDTO::new);
     }
 
     public ProductDTO findById(Long id) {

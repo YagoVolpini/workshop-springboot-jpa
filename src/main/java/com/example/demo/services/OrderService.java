@@ -14,11 +14,12 @@ import com.example.demo.repositories.UserRepository;
 import com.example.demo.services.exceptions.DatabaseException;
 import com.example.demo.services.exceptions.ResourceNotFoundException;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.util.List;
 
 @Service
 public class OrderService {
@@ -33,9 +34,8 @@ public class OrderService {
         this.productRepository = productRepository;
     }
 
-    public List<OrderDTO> findAll() {
-        return orderRepository.findAll()
-                .stream().map(OrderDTO::new).toList();
+    public Page<OrderDTO> findAll(Pageable pageable) {
+        return orderRepository.findAll(pageable).map(OrderDTO::new);
     }
 
     public OrderDTO findById(Long id) {
@@ -77,6 +77,7 @@ public class OrderService {
         return new OrderDTO(order);
     }
 
+    @Transactional
     public void delete(Long id) {
         Order order = orderRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(id));
         try {
