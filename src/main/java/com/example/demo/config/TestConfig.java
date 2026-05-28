@@ -8,6 +8,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Arrays;
 
@@ -44,11 +45,11 @@ public class TestConfig implements CommandLineRunner {
 
         categoryRepository.saveAll(Arrays.asList(cat1, cat2, cat3));
 
-        Product p1 = new Product(null, "Smart TV 50\"", "Smart TV 50 Polegadas Full HD", 2190.0, "");
-        Product p2 = new Product(null, "Macbook Pro", "Macbook Pro M2 13 Polegadas", 6500.0, "");
-        Product p3 = new Product(null, "PC Gamer", "PC Gamer RTX 4060 Ryzen 7 32GB RAM", 8900.0, "");
-        Product p4 = new Product(null, "Harry Potter and the Philosopher's Stone", "Fantasy novel by J.K. Rowling. ", 79.90, "");
-        Product p5 = new Product(null, "The Lord of the Rings", "Epic fantasy adventure by J.R.R. Tolkien. ", 90.5, "");
+        Product p1 = new Product(null, "Smart TV 50\"", "Smart TV 50 Polegadas Full HD", new BigDecimal("2190.00"), "", 20);
+        Product p2 = new Product(null, "Macbook Pro", "Macbook Pro M2 13 Polegadas", new BigDecimal("6500.00"), "", 20);
+        Product p3 = new Product(null, "PC Gamer", "PC Gamer RTX 4060 Ryzen 7 32GB RAM", new BigDecimal("8900.00"), "", 10);
+        Product p4 = new Product(null, "Harry Potter and the Philosopher's Stone", "Fantasy novel by J.K. Rowling. ", new BigDecimal("79.90"), "", 10);
+        Product p5 = new Product(null, "The Lord of the Rings", "Epic fantasy adventure by J.R.R. Tolkien. ", new BigDecimal("90.50"), "", 10);
 
         p1.getCategories().add(cat1);
         p1.getCategories().add(cat2);

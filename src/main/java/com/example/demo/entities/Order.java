@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -96,10 +97,10 @@ public class Order implements Serializable {
         orderItems.add(orderItem);
     }
 
-    public Double getTotal() {
-        Double sum = 0.0;
+    public BigDecimal getTotal() {
+        BigDecimal sum = BigDecimal.ZERO;
         for (OrderItem orderItem : orderItems) {
-            sum += orderItem.getSubTotal();
+            sum = sum.add(orderItem.getSubTotal());
         }
         return sum;
     }

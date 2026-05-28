@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -17,8 +18,9 @@ public class Product implements Serializable {
     private Long id;
     private String name;
     private String description;
-    private Double price;
+    private BigDecimal price;
     private String imgURL;
+    private Integer stock;
 
 
     @ManyToMany
@@ -33,12 +35,29 @@ public class Product implements Serializable {
     public Product() {
     }
 
-    public Product(Long id, String name, String description, Double price, String imgURL) {
+    public Product(Long id, String name, String description, BigDecimal price, String imgURL, Integer stock) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.price = price;
         this.imgURL = imgURL;
+        this.stock = stock;
+    }
+
+    public void setPrice(BigDecimal price) {
+        this.price = price;
+    }
+
+    public Integer getStock() {
+        return stock;
+    }
+
+    public void setStock(Integer stock) {
+        this.stock = stock;
+    }
+
+    public BigDecimal getPrice() {
+        return price;
     }
 
     public String getDescription() {
@@ -73,13 +92,6 @@ public class Product implements Serializable {
         this.name = name;
     }
 
-    public Double getPrice() {
-        return price;
-    }
-
-    public void setPrice(Double price) {
-        this.price = price;
-    }
 
     public void setCategories(Set<Category> categories) {
         this.categories = categories;
@@ -103,7 +115,9 @@ public class Product implements Serializable {
         return orders;
     }
 
-public Set<Category> getCategories() {return categories;}
+    public Set<Category> getCategories() {
+        return categories;
+    }
 
     @Override
     public boolean equals(Object o) {

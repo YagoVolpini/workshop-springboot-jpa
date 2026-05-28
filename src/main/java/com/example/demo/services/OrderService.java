@@ -5,6 +5,7 @@ import com.example.demo.dto.OrderInsertDTO;
 import com.example.demo.dto.OrderItemInsertDTO;
 import com.example.demo.dto.OrderStatusDTO;
 import com.example.demo.entities.Order;
+import com.example.demo.entities.OrderItem;
 import com.example.demo.entities.Product;
 import com.example.demo.entities.User;
 import com.example.demo.enums.OrderStatus;
@@ -58,10 +59,17 @@ public class OrderService {
             Product product = productRepository.findById(itemDto.getProductId())
                     .orElseThrow(() -> new ResourceNotFoundException(itemDto.getProductId()));
 
+            if (product.getStock() < itemDto.getQuantity()) {
+                throw new BusinessException(String.format("Stock insufficient for product '%s'. Available: %d, Requested: %d"
+                        , product.getName(), product.getStock(), itemDto.getQuantity()));
+            }
+            product.setStock(product.getStock() - itemDto.getQuantity());
+            productRepository.save(product);
             order.addItem(product, itemDto.getQuantity());
         }
 
         order = orderRepository.save(order);
+
         return new OrderDTO(order);
     }
 
@@ -76,6 +84,13 @@ public class OrderService {
             throw new BusinessException("Cannot update status of a finalized order");
         }
 
+        if (dto.getStatus() == OrderStatus.CANCELED) {
+            for (OrderItem orderItem : order.getOrderItems()) {
+                Product product = orderItem.getProduct();
+                product.setStock(product.getStock() + (orderItem.getQuantity()));
+                productRepository.save(product);
+            }
+        }
         order.setStatus(dto.getStatus());
 
         order = orderRepository.save(order);

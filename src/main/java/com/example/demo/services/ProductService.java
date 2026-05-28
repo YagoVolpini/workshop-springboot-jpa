@@ -72,6 +72,7 @@ public class ProductService {
         if (dto.getDescription() != null) entity.setDescription(dto.getDescription());
         if (dto.getPrice() != null) entity.setPrice(dto.getPrice());
         if (dto.getImgURL() != null) entity.setImgURL(dto.getImgURL());
+        if (dto.getStock() != null) entity.setStock(dto.getStock());
 
     }
 }

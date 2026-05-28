@@ -3,12 +3,13 @@ package com.example.demo.dto;
 import com.example.demo.entities.OrderItem;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 public class OrderItemDTO implements Serializable {
 
     private Long id;
     private Integer quantity;
-    private Double price;
+    private BigDecimal price;
     private ProductDTO product;
 
     public OrderItemDTO() {
@@ -30,11 +31,11 @@ public class OrderItemDTO implements Serializable {
         this.id = id;
     }
 
-    public Double getPrice() {
+    public BigDecimal getPrice() {
         return price;
     }
 
-    public void setPrice(Double price) {
+    public void setPrice(BigDecimal price) {
         this.price = price;
     }
 
@@ -54,7 +55,7 @@ public class OrderItemDTO implements Serializable {
         this.quantity = quantity;
     }
 
-    public Double getSubTotal() {
-        return price * quantity;
+    public BigDecimal getSubTotal() {
+        return price.multiply(BigDecimal.valueOf(quantity));
     }
 }

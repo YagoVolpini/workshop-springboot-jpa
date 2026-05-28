@@ -3,6 +3,7 @@ package com.example.demo.entities;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
+import java.math.BigDecimal;
 import java.util.Objects;
 
 @Entity
@@ -13,7 +14,7 @@ public class OrderItem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private Integer quantity;
-    private Double price;
+    private BigDecimal price;
 
     @JsonIgnore
     @ManyToOne
@@ -28,7 +29,7 @@ public class OrderItem {
     }
 
 
-    public OrderItem(Order order, Product product, Integer quantity, Double price) {
+    public OrderItem(Order order, Product product, Integer quantity, BigDecimal price) {
         this.order = order;
         this.product = product;
         this.price = price;
@@ -43,11 +44,11 @@ public class OrderItem {
         this.order = order;
     }
 
-    public Double getPrice() {
+    public BigDecimal getPrice() {
         return price;
     }
 
-    public void setPrice(Double price) {
+    public void setPrice(BigDecimal price) {
         this.price = price;
     }
 
@@ -67,8 +68,8 @@ public class OrderItem {
         this.quantity = quantity;
     }
 
-    public Double getSubTotal() {
-        return price * quantity;
+    public BigDecimal getSubTotal() {
+        return price.multiply(BigDecimal.valueOf(quantity));
     }
 
     public Long getId() {

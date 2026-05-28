@@ -5,6 +5,7 @@ import com.example.demo.entities.OrderItem;
 import com.example.demo.enums.OrderStatus;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +17,7 @@ public class OrderDTO implements Serializable {
     private OrderStatus status;
     private UserDTO client;
     private List<OrderItemDTO> items = new ArrayList<>();
-    private Double total;
+    private BigDecimal total;
 
 
     public OrderDTO() {
@@ -74,11 +75,11 @@ public class OrderDTO implements Serializable {
         this.status = status;
     }
 
-    public Double getTotal() {
+    public BigDecimal getTotal() {
         return total;
     }
 
-    public void setTotal(Double total) {
+    public void setTotal(BigDecimal total) {
         this.total = total;
     }
 }

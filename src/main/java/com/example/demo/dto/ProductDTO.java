@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,9 +22,11 @@ public class ProductDTO implements Serializable {
 
     @Positive(message = "Price must be positive")
     @NotNull(message = "Price is required")
-    private Double price;
+    private BigDecimal price;
     private String imgURL;
     private List<CategoryDTO> categories = new ArrayList<>();
+
+    private Integer stock;
 
 
     public ProductDTO() {
@@ -35,6 +38,7 @@ public class ProductDTO implements Serializable {
         this.description = product.getDescription();
         this.price = product.getPrice();
         this.imgURL = product.getImgURL();
+        this.stock = product.getStock();
 
 
         product.getCategories().forEach(category -> categories.add(new CategoryDTO(category)));
@@ -80,11 +84,19 @@ public class ProductDTO implements Serializable {
         this.name = name;
     }
 
-    public Double getPrice() {
+    public BigDecimal getPrice() {
         return price;
     }
 
-    public void setPrice(Double price) {
+    public void setPrice(BigDecimal price) {
         this.price = price;
+    }
+
+    public Integer getStock() {
+        return stock;
+    }
+
+    public void setStock(Integer stock) {
+        this.stock = stock;
     }
 }
