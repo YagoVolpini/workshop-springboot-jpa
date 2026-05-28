@@ -20,17 +20,19 @@ public class CategoryService {
 
     private final CategoryRepository categoryRepository;
 
+    @Transactional(readOnly = true)
     public Page<CategoryDTO> findAll(Pageable pageable) {
 
         return categoryRepository.findAll(pageable).map(CategoryDTO::new);
     }
 
+    @Transactional(readOnly = true)
     public CategoryDTO findById(Long id) {
         Category category = categoryRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(id));
         return new CategoryDTO(category);
     }
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public CategoryDTO insert(CategoryDTO dto) {
         if (categoryRepository.existsByName(dto.getName())) {
             throw new AlreadyExistsException(String.format("Category with name %s already exists", dto.getName()));
@@ -43,7 +45,7 @@ public class CategoryService {
         return new CategoryDTO(category);
     }
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public CategoryDTO update(Long id, CategoryDTO dto) {
         Category category = categoryRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(id));
         updateData(dto, category);
@@ -55,7 +57,7 @@ public class CategoryService {
         if (dto.getName() != null) category.setName(dto.getName());
     }
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void delete(Long id) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(id));

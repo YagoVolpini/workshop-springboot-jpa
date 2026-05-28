@@ -3,6 +3,7 @@ package com.example.demo.controllers;
 import com.example.demo.dto.ProductDTO;
 import com.example.demo.services.ProductService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -15,14 +16,10 @@ import java.net.URI;
 
 @RestController
 @RequestMapping("/products")
+@RequiredArgsConstructor
 public class ProductController {
 
     private final ProductService productService;
-
-    public ProductController(ProductService productService) {
-        this.productService = productService;
-    }
-
 
     @GetMapping
     public ResponseEntity<Page<ProductDTO>> findAll(

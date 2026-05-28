@@ -32,16 +32,18 @@ public class OrderService {
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
 
+    @Transactional(readOnly = true)
     public Page<OrderDTO> findAll(Pageable pageable) {
         return orderRepository.findAll(pageable).map(OrderDTO::new);
     }
 
+    @Transactional(readOnly = true)
     public OrderDTO findById(Long id) {
         Order order = orderRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(id));
         return new OrderDTO(order);
     }
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public OrderDTO insert(OrderInsertDTO dto) {
         User client = userRepository.findById(dto.getClientId())
                 .orElseThrow(() -> new ResourceNotFoundException(dto.getClientId()));
@@ -69,32 +71,41 @@ public class OrderService {
         return new OrderDTO(order);
     }
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public OrderDTO updateStatus(Long id, OrderStatusDTO dto) {
 
 
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(id));
 
-        if (order.getStatus() == OrderStatus.DELIVERED || order.getStatus() == OrderStatus.CANCELED) {
+        if (order.getStatus() == dto.getStatus()) {
+
+            return new OrderDTO(order);
+        }
+
+        if (order.getStatus() == OrderStatus.CANCELED || order.getStatus() == OrderStatus.REFUNDED) {
             throw new BusinessException("Cannot update status of a finalized order");
         }
 
-        if (dto.getStatus() == OrderStatus.CANCELED) {
+        if (order.getStatus() == OrderStatus.DELIVERED && dto.getStatus() != OrderStatus.REFUNDED) {
+            throw new BusinessException("Cannot update status of a delivered order unless it is for REFUNDED");
+        }
+
+        if (dto.getStatus() == OrderStatus.CANCELED || dto.getStatus() == OrderStatus.REFUNDED) {
             for (OrderItem orderItem : order.getOrderItems()) {
                 Product product = orderItem.getProduct();
-                product.setStock(product.getStock() + (orderItem.getQuantity()));
+                product.setStock(product.getStock() + orderItem.getQuantity());
                 productRepository.save(product);
             }
         }
+
         order.setStatus(dto.getStatus());
-
         order = orderRepository.save(order);
-
         return new OrderDTO(order);
     }
 
-    @Transactional
+
+    @Transactional(rollbackFor = Exception.class)
     public void delete(Long id) {
         Order order = orderRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(id));
         try {
@@ -103,6 +114,5 @@ public class OrderService {
         } catch (DataIntegrityViolationException e) {
             throw new DatabaseException("Cannot delete this order because it is associated with other records");
         }
-
     }
 }

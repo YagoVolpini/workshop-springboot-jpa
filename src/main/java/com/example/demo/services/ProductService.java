@@ -20,17 +20,19 @@ public class ProductService {
 
     private final ProductRepository productRepository;
 
+    @Transactional(readOnly = true)
     public Page<ProductDTO> findAll(Pageable pageable) {
 
         return productRepository.findAll(pageable).map(ProductDTO::new);
     }
 
+    @Transactional(readOnly = true)
     public ProductDTO findById(Long id) {
         Product product = productRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(id));
         return new ProductDTO(product);
     }
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public ProductDTO insert(ProductDTO dto) {
 
         if (productRepository.existsByName(dto.getName())) {
@@ -43,7 +45,7 @@ public class ProductService {
         return new ProductDTO(product);
     }
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void delete(Long id) {
 
         Product product = productRepository.findById(id)
@@ -56,7 +58,7 @@ public class ProductService {
         }
     }
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public ProductDTO update(Long id, ProductDTO dto) {
         Product product = productRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(id));
         updateData(dto, product);

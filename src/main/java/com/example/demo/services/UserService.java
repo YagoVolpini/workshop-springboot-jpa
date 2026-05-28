@@ -19,17 +19,19 @@ public class UserService {
 
     private final UserRepository userRepository;
 
+
+    @Transactional(readOnly = true)
     public Page<UserDTO> findAll(Pageable pageable) {
         return userRepository.findAll(pageable).map(UserDTO::new);
     }
 
-
+    @Transactional(readOnly = true)
     public UserDTO findById(Long id) {
         User entity = userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(id));
         return new UserDTO(entity);
     }
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public UserDTO insert(UserDTO dto) {
         if (userRepository.existsByEmail(dto.getEmail())) {
             throw new AlreadyExistsException(String.format("Email %s already exists", dto.getEmail()));
@@ -42,7 +44,7 @@ public class UserService {
         return new UserDTO(entity);
     }
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void delete(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(id));
@@ -54,7 +56,7 @@ public class UserService {
         }
     }
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public UserDTO update(Long id, UserDTO dto) {
         User entity = userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(id));
         updateData(dto, entity);

@@ -5,6 +5,7 @@ import com.example.demo.dto.OrderInsertDTO;
 import com.example.demo.dto.OrderStatusDTO;
 import com.example.demo.services.OrderService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -17,13 +18,10 @@ import java.net.URI;
 
 @RestController
 @RequestMapping("/orders")
+@RequiredArgsConstructor
 public class OrderController {
 
     private final OrderService orderService;
-
-    public OrderController(OrderService orderService) {
-        this.orderService = orderService;
-    }
 
     @GetMapping
     public ResponseEntity<Page<OrderDTO>> findAll(
