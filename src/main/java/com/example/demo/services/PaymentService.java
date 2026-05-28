@@ -4,19 +4,17 @@ import com.example.demo.dto.PaymentDTO;
 import com.example.demo.entities.Payment;
 import com.example.demo.repositories.PaymentRepository;
 import com.example.demo.services.exceptions.ResourceNotFoundException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 
 @Service
+@RequiredArgsConstructor
 public class PaymentService {
 
     private final PaymentRepository paymentRepository;
-
-    public PaymentService(PaymentRepository paymentRepository) {
-        this.paymentRepository = paymentRepository;
-    }
 
     public Page<PaymentDTO> findAll(Pageable pageable) {
         return paymentRepository.findAll(pageable).map(PaymentDTO::new);

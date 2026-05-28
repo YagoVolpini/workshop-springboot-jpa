@@ -3,11 +3,17 @@ package com.example.demo.dto;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+@Getter
+@Setter
+@NoArgsConstructor
 public class OrderInsertDTO implements Serializable {
 
     @NotNull(message = "Client is required")
@@ -17,27 +23,10 @@ public class OrderInsertDTO implements Serializable {
     @Valid
     private List<OrderItemInsertDTO> items = new ArrayList<>();
 
-    public OrderInsertDTO() {
-    }
 
     public OrderInsertDTO(Long clientId, List<OrderItemInsertDTO> items) {
         this.clientId = clientId;
         this.items = items != null ? items : new ArrayList<>();
     }
 
-    public Long getClientId() {
-        return clientId;
-    }
-
-    public void setClientId(Long clientId) {
-        this.clientId = clientId;
-    }
-
-    public List<OrderItemInsertDTO> getItems() {
-        return items;
-    }
-
-    public void setItems(List<OrderItemInsertDTO> items) {
-        this.items = items;
-    }
 }

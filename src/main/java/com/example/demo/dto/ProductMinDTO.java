@@ -10,13 +10,11 @@ import lombok.Setter;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
 
 @Getter
 @Setter
 @NoArgsConstructor
-public class ProductDTO implements Serializable {
+public class ProductMinDTO implements Serializable {
 
     private Long id;
 
@@ -30,20 +28,13 @@ public class ProductDTO implements Serializable {
     @NotNull(message = "Price is required")
     private BigDecimal price;
     private String imgURL;
-    private List<CategoryDTO> categories = new ArrayList<>();
 
-    private Integer stock;
-
-
-    public ProductDTO(Product product) {
+    public ProductMinDTO(Product product) {
         this.id = product.getId();
         this.name = product.getName();
         this.description = product.getDescription();
         this.price = product.getPrice();
         this.imgURL = product.getImgURL();
-        this.stock = product.getStock();
 
-
-        product.getCategories().forEach(category -> categories.add(new CategoryDTO(category)));
     }
 }

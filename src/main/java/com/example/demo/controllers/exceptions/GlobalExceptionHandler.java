@@ -14,8 +14,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import java.time.Instant;
 import java.util.stream.Collectors;
 
-import static org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY;
-
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -40,7 +38,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(AlreadyExistsException.class)
-    public ResponseEntity<StandardError> emailAlreadyExists(AlreadyExistsException e, HttpServletRequest request) {
+    public ResponseEntity<StandardError> alreadyExistis(AlreadyExistsException e, HttpServletRequest request) {
         String error = "Already exists";
         HttpStatus status = HttpStatus.CONFLICT;
         StandardError errorResponse = new StandardError(Instant.now(), status.value(), error, e.getMessage(), request.getRequestURI());
@@ -49,9 +47,9 @@ public class GlobalExceptionHandler {
 
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<StandardError> emailAlreadyExists(MethodArgumentNotValidException e, HttpServletRequest request) {
+    public ResponseEntity<StandardError> validationException(MethodArgumentNotValidException e, HttpServletRequest request) {
         String error = "Validation error";
-        HttpStatus status = UNPROCESSABLE_ENTITY;
+        HttpStatus status = HttpStatus.UNPROCESSABLE_ENTITY;
         String message = e.getBindingResult().getFieldErrors()
                 .stream().map(m -> m.getField() + ": " + m.getDefaultMessage())
                 .collect(Collectors.joining(", "));

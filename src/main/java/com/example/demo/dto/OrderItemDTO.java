@@ -1,58 +1,30 @@
 package com.example.demo.dto;
 
 import com.example.demo.entities.OrderItem;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
 
+@Getter
+@Setter
+@NoArgsConstructor
 public class OrderItemDTO implements Serializable {
 
     private Long id;
     private Integer quantity;
     private BigDecimal price;
-    private ProductDTO product;
+    private ProductMinDTO product;
 
-    public OrderItemDTO() {
-    }
+
 
     public OrderItemDTO(OrderItem orderItem) {
         this.id = orderItem.getId();
         this.quantity = orderItem.getQuantity();
         this.price = orderItem.getPrice();
-        this.product = new ProductDTO(orderItem.getProduct());
-    }
-
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public BigDecimal getPrice() {
-        return price;
-    }
-
-    public void setPrice(BigDecimal price) {
-        this.price = price;
-    }
-
-    public ProductDTO getProduct() {
-        return product;
-    }
-
-    public void setProduct(ProductDTO product) {
-        this.product = product;
-    }
-
-    public Integer getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(Integer quantity) {
-        this.quantity = quantity;
+        this.product = new ProductMinDTO(orderItem.getProduct());
     }
 
     public BigDecimal getSubTotal() {
