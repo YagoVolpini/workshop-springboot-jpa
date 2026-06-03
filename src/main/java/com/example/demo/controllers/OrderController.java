@@ -3,13 +3,13 @@ package com.example.demo.controllers;
 import com.example.demo.dto.OrderDTO;
 import com.example.demo.dto.OrderInsertDTO;
 import com.example.demo.dto.OrderStatusDTO;
+import com.example.demo.repositories.projections.ProductCustomersProjection;
 import com.example.demo.services.OrderService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -25,11 +25,7 @@ public class OrderController {
 
     @GetMapping
     public ResponseEntity<Page<OrderDTO>> findAll(
-            @RequestParam(defaultValue = "0") Integer page,
-            @RequestParam(defaultValue = "10") Integer size,
-            @RequestParam(defaultValue = "id") String sort) {
-
-        Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
+            @PageableDefault(page = 0, size = 10, sort = "moment") Pageable pageable) {
         return ResponseEntity.ok(orderService.findAll(pageable));
     }
 
@@ -57,5 +53,13 @@ public class OrderController {
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         orderService.delete(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/products-sales")
+    public ResponseEntity<Page<ProductCustomersProjection>> getProductCustomers(
+            @RequestParam(required = false) Long id,
+            @RequestParam(required = false) String name,
+            @PageableDefault(page = 0, size = 10, sort = "id") Pageable pageable) {
+        return ResponseEntity.ok(orderService.findByIdOrNameProducts(id, name, pageable));
     }
 }

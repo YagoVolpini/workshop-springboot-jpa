@@ -38,7 +38,6 @@ public class CategoryService {
             throw new AlreadyExistsException(String.format("Category with name %s already exists", dto.getName()));
         }
 
-
         Category category = new Category();
         updateData(dto, category);
         category = categoryRepository.save(category);
@@ -53,7 +52,7 @@ public class CategoryService {
         return new CategoryDTO(category);
     }
 
-    public void updateData(CategoryDTO dto, Category category) {
+    private void updateData(CategoryDTO dto, Category category) {
         if (dto.getName() != null) category.setName(dto.getName());
     }
 

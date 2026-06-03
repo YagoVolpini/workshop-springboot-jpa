@@ -1,13 +1,13 @@
 package com.example.demo.controllers;
 
 import com.example.demo.dto.ProductDTO;
+import com.example.demo.repositories.projections.ProductMinProjection;
 import com.example.demo.services.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -23,11 +23,7 @@ public class ProductController {
 
     @GetMapping
     public ResponseEntity<Page<ProductDTO>> findAll(
-            @RequestParam(defaultValue = "0") Integer page,
-            @RequestParam(defaultValue = "10") Integer size,
-            @RequestParam(defaultValue = "name") String sort) {
-
-        Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
+            @PageableDefault(page = 0, size = 10, sort = "name") Pageable pageable) {
         return ResponseEntity.ok(productService.findAll(pageable));
     }
 
@@ -57,4 +53,21 @@ public class ProductController {
     public ResponseEntity<ProductDTO> update(@PathVariable Long id, @RequestBody ProductDTO product) {
         return ResponseEntity.ok(productService.update(id, product));
     }
+
+    @GetMapping("/category")
+    public ResponseEntity<Page<ProductDTO>> findAllByCategory(
+            @RequestParam(required = false) Long id,
+            @RequestParam(required = false) String name,
+            @PageableDefault(page = 0, size = 10, sort = "name") Pageable pageable) {
+        return ResponseEntity.ok(productService.findAllByCategory(id ,name, pageable));
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<Page<ProductMinProjection>> search(
+            @RequestParam(required = false) Long id,
+            @RequestParam(required = false) String name,
+            @PageableDefault(page = 0, size = 10, sort = "name") Pageable pageable) {
+        return ResponseEntity.ok(productService.searchByNameOrId(id, name, pageable));
+    }
+
 }

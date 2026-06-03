@@ -3,7 +3,9 @@ package com.example.demo.services;
 import com.example.demo.dto.ProductDTO;
 import com.example.demo.entities.Product;
 import com.example.demo.repositories.ProductRepository;
+import com.example.demo.repositories.projections.ProductMinProjection;
 import com.example.demo.services.exceptions.AlreadyExistsException;
+import com.example.demo.services.exceptions.BusinessException;
 import com.example.demo.services.exceptions.DatabaseException;
 import com.example.demo.services.exceptions.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +24,6 @@ public class ProductService {
 
     @Transactional(readOnly = true)
     public Page<ProductDTO> findAll(Pageable pageable) {
-
         return productRepository.findAll(pageable).map(ProductDTO::new);
     }
 
@@ -74,5 +75,44 @@ public class ProductService {
         if (dto.getImgURL() != null) entity.setImgURL(dto.getImgURL());
         if (dto.getStock() != null) entity.setStock(dto.getStock());
 
+    }
+
+    @Transactional(readOnly = true)
+    public Page<ProductDTO> findAllByCategory(Long id, String name, Pageable pageable) {
+        if (id == null && (name == null || name.isBlank())) {
+            throw new BusinessException("Provide at least an id or a category name");
+        }
+        if (id != null) {
+            Page<Product> page = productRepository.findAllByCategoriesId(id, pageable);
+            if (page.isEmpty())
+                throw new ResourceNotFoundException(id);
+            return page.map(ProductDTO::new);
+        }
+
+        Page<Product> products = productRepository.findAllByCategoriesNameContainingIgnoreCase(name, pageable);
+        if (products.isEmpty()) {
+            throw new BusinessException("No category found with name: " + name);
+        }
+        return products.map(ProductDTO::new);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<ProductMinProjection> searchByNameOrId(Long id, String name, Pageable pageable) {
+
+        if (id == null && (name == null || name.isBlank())) {
+            throw new BusinessException("Provide at least an id or a product name");
+        }
+
+        if (id != null) {
+            Page<ProductMinProjection> page = productRepository.findByIdIs(id, pageable);
+            if (page.isEmpty())
+                throw new ResourceNotFoundException(id);
+            return page;
+        }
+
+        Page<ProductMinProjection> page = productRepository.findByNameContainingIgnoreCase(name, pageable);
+        if (page.isEmpty())
+            throw new BusinessException("No product found with name: " + name);
+        return page;
     }
 }
