@@ -7,6 +7,7 @@ REST API built with Spring Boot and JPA simulating an e-commerce backend system,
 - Java 17
 - Spring Boot 3
 - Spring Data JPA (Hibernate)
+- Lombok
 - H2 Database
 - Bean Validation
 - Maven
@@ -18,22 +19,25 @@ REST API built with Spring Boot and JPA simulating an e-commerce backend system,
 - Layered architecture (**Controller / Service / Repository**)
 - DTO pattern for data transfer
 - Global exception handling with `@ControllerAdvice`
+- Database Projections (Interface-based projections)
 
 ---
 
 ## Features
 - Full CRUD for Users, Products, Categories, and Orders
-- Order creation with multiple items
-- Order status management
+- Order creation with multiple items and stock control
+- Order status management with custom business workflow
 - Order items include subtotal calculation (price × quantity)
 - Order includes total price calculation
 - Product–Category many-to-many relationship
 - Input validation with Bean Validation
 - Duplicate data protection (email and product/category name)
 - Centralized exception handling
-- Pagination support on all list endpoints
+- Pagination support on all list endpoints using `@PageableDefault`
 - Partial update support (send only the fields you want to update)
-- Business rule: finalized orders (DELIVERED/CANCELED) cannot have status updated
+- Business rule: finalized orders (CANCELED/REFUNDED) cannot have status updated
+- Automated stock restore when canceling or refunding orders
+- Automated payment lifecycle creation and clean-up
 - In-memory H2 database for testing
 
 ---
@@ -48,7 +52,12 @@ REST API built with Spring Boot and JPA simulating an e-commerce backend system,
   - `SHIPPED`
   - `DELIVERED`
   - `CANCELED`
-- Finalized orders (DELIVERED/CANCELED) cannot have their status updated
+  - `REFUNDED`
+- Finalized orders (CANCELED/REFUNDED) cannot have their status updated
+- Delivered orders (DELIVERED) can only be updated to `REFUNDED`
+- Paid orders (PAID) can only be updated to `SHIPPED` or `REFUNDED`
+- Shipped orders (SHIPPED) can only be updated to `DELIVERED` or `REFUNDED`
+- Orders can only be deleted if their current status is `WAITING_PAYMENT`
 
 ---
 
@@ -84,6 +93,8 @@ Access API at:
 | POST | /products | Create product |
 | PUT | /products/{id} | Update product (partial) |
 | DELETE | /products/{id} | Delete product |
+| GET | /products/category | Find products by category id or name (paginated) |
+| GET | /products/search | Search products by name or id using minified projection (paginated) |
 
 ### Categories
 | Method | Endpoint | Description |
@@ -99,9 +110,10 @@ Access API at:
 |--------|----------|-------------|
 | GET | /orders | List all orders (paginated) |
 | GET | /orders/{id} | Find order by id |
-| POST | /orders | Create order with items |
+| POST | /orders | Create order with items (and automatic stock deduction) |
 | PUT | /orders/{id}/status | Update order status |
-| DELETE | /orders/{id} | Delete order |
+| DELETE | /orders/{id} | Delete order (Only if WAITING_PAYMENT) |
+| GET | /orders/products-sales | Custom sales report using database projections matching products and clients (pagined) |
 
 ### Payments
 | Method | Endpoint | Description |
