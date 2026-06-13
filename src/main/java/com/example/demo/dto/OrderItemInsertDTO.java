@@ -13,7 +13,6 @@ import java.io.Serializable;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
 public class OrderItemInsertDTO implements Serializable {
 
     @NotNull(message = "Product is required")

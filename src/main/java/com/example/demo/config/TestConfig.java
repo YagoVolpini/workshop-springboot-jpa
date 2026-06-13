@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -36,6 +37,13 @@ public class TestConfig implements CommandLineRunner {
     private PaymentRepository paymentRepository;
 
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+
+    @Autowired
+    private RoleRepository roleRepository;
+
     @Override
     public void run(String... args) throws Exception {
 
@@ -60,10 +68,20 @@ public class TestConfig implements CommandLineRunner {
 
         productRepository.saveAll(Arrays.asList(p1, p2, p3, p4, p5));
 
-        User user1 = new User(null, "John Smith", "john@gmail.com", "11999990001", "123456");
-        User user2 = new User(null, "Jane Doe", "jane@gmail.com", "11999990002", "123456");
-        User user3 = new User(null, "Bob Johnson", "bob@gmail.com", "11999990003", "123456");
-        User user4 = new User(null, "Alice Brown", "alice@gmail.com", "11999990004", "123456");
+
+        Role roleAdmin = new Role(null, "ROLE_ADMIN");
+        Role roleClient = new Role(null, "ROLE_CLIENT");
+
+        roleRepository.saveAll(Arrays.asList(roleAdmin, roleClient));
+
+        User user1 = new User(null, "John Smith", "john@gmail.com", "11999990001", passwordEncoder.encode("123456"));
+        user1.getRoles().add(roleAdmin);
+        User user2 = new User(null, "Jane Doe", "jane@gmail.com", "11999990002", passwordEncoder.encode("123456"));
+        user2.getRoles().add(roleClient);
+        User user3 = new User(null, "Bob Johnson", "bob@gmail.com", "11999990003", passwordEncoder.encode("123456"));
+        user3.getRoles().add(roleClient);
+        User user4 = new User(null, "Alice Brown", "alice@gmail.com", "11999990004", passwordEncoder.encode("123456"));
+        user4.getRoles().add(roleClient);
 
         userRepository.saveAll(Arrays.asList(user1, user2, user3, user4));
 

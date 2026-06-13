@@ -62,4 +62,9 @@ public class OrderController {
             @PageableDefault(page = 0, size = 10, sort = "id") Pageable pageable) {
         return ResponseEntity.ok(orderService.findByIdOrNameProducts(id, name, pageable));
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<OrderDTO> update(@PathVariable Long id,@RequestBody OrderInsertDTO order) {
+        return ResponseEntity.ok(orderService.update(id, order));
+    }
 }

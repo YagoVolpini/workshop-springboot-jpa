@@ -1,7 +1,10 @@
 package com.example.demo.services;
 
+import com.example.demo.dto.CategoryDTO;
 import com.example.demo.dto.ProductDTO;
+import com.example.demo.entities.Category;
 import com.example.demo.entities.Product;
+import com.example.demo.repositories.CategoryRepository;
 import com.example.demo.repositories.ProductRepository;
 import com.example.demo.repositories.projections.ProductMinProjection;
 import com.example.demo.services.exceptions.AlreadyExistsException;
@@ -21,6 +24,7 @@ public class ProductService {
 
 
     private final ProductRepository productRepository;
+    private final CategoryRepository categoryRepository;
 
     @Transactional(readOnly = true)
     public Page<ProductDTO> findAll(Pageable pageable) {
@@ -29,7 +33,7 @@ public class ProductService {
 
     @Transactional(readOnly = true)
     public ProductDTO findById(Long id) {
-        Product product = productRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(id));
+        Product product = productRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Resource not found with id " + id));
         return new ProductDTO(product);
     }
 
@@ -50,7 +54,7 @@ public class ProductService {
     public void delete(Long id) {
 
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(id));
+                .orElseThrow(() -> new ResourceNotFoundException("Resource not found with id " + id));
         try {
             productRepository.delete(product);
             productRepository.flush();
@@ -61,7 +65,7 @@ public class ProductService {
 
     @Transactional(rollbackFor = Exception.class)
     public ProductDTO update(Long id, ProductDTO dto) {
-        Product product = productRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(id));
+        Product product = productRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Resource not found with id " + id));
         updateData(dto, product);
         product = productRepository.save(product);
         return new ProductDTO(product);
@@ -72,8 +76,18 @@ public class ProductService {
         if (dto.getName() != null) entity.setName(dto.getName());
         if (dto.getDescription() != null) entity.setDescription(dto.getDescription());
         if (dto.getPrice() != null) entity.setPrice(dto.getPrice());
-        if (dto.getImgURL() != null) entity.setImgURL(dto.getImgURL());
+        if (dto.getImgUrl() != null) entity.setImgUrl(dto.getImgUrl());
         if (dto.getStock() != null) entity.setStock(dto.getStock());
+
+        if (dto.getCategories() != null && !dto.getCategories().isEmpty()) {
+            entity.getCategories().clear();
+            for (CategoryDTO categoryDTO : dto.getCategories()) {
+                Category category = categoryRepository.findById(categoryDTO.getId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Category not found with id " + categoryDTO.getId()));
+                entity.getCategories().add(category);
+
+            }
+        }
 
     }
 
@@ -85,7 +99,7 @@ public class ProductService {
         if (id != null) {
             Page<Product> page = productRepository.findAllByCategoriesId(id, pageable);
             if (page.isEmpty())
-                throw new ResourceNotFoundException(id);
+                throw new ResourceNotFoundException("Resource not found with id " + id);
             return page.map(ProductDTO::new);
         }
 
@@ -106,7 +120,7 @@ public class ProductService {
         if (id != null) {
             Page<ProductMinProjection> page = productRepository.findByIdIs(id, pageable);
             if (page.isEmpty())
-                throw new ResourceNotFoundException(id);
+                throw new ResourceNotFoundException("Resource not found with id " + id);
             return page;
         }
 

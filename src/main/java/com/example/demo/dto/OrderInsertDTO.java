@@ -16,7 +16,6 @@ import java.util.List;
 @NoArgsConstructor
 public class OrderInsertDTO implements Serializable {
 
-    @NotNull(message = "Client is required")
     private Long clientId;
 
     @NotEmpty(message = "Order must have at least one item")

@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,10 +30,10 @@ public class Order implements Serializable {
     private OrderStatus status;
 
     @ManyToOne
-    @JoinColumn(name = "client_id",  nullable = false)
+    @JoinColumn(name = "client_id", nullable = false)
     private User client;
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> orderItems = new ArrayList<>();
 
     @OneToOne(mappedBy = "order", cascade = CascadeType.ALL)
@@ -50,14 +49,6 @@ public class Order implements Serializable {
     public void addItem(Product product, Integer quantity) {
         OrderItem orderItem = new OrderItem(this, product, quantity, product.getPrice());
         orderItems.add(orderItem);
-    }
-
-    public BigDecimal getTotal() {
-        BigDecimal sum = BigDecimal.ZERO;
-        for (OrderItem orderItem : orderItems) {
-            sum = sum.add(orderItem.getSubTotal());
-        }
-        return sum;
     }
 
     @Override

@@ -1,19 +1,18 @@
 package com.example.demo.dto;
 
-import com.example.demo.enums.OrderStatus;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.io.Serializable;
-
-
 @Getter
 @Setter
 @NoArgsConstructor
-public class OrderStatusDTO implements Serializable {
+@AllArgsConstructor
+public class LoginResponseDTO {
 
-    private OrderStatus status;
+    private String name;
+    private String token;
 
 }

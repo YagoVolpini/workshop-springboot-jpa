@@ -27,14 +27,14 @@ public class ProductMinDTO implements Serializable {
     @Positive(message = "Price must be positive")
     @NotNull(message = "Price is required")
     private BigDecimal price;
-    private String imgURL;
+    private String imgUrl;
 
     public ProductMinDTO(Product product) {
         this.id = product.getId();
         this.name = product.getName();
         this.description = product.getDescription();
         this.price = product.getPrice();
-        this.imgURL = product.getImgURL();
+        this.imgUrl = product.getImgUrl();
 
     }
 }

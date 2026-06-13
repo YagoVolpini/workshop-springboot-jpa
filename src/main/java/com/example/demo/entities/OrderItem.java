@@ -43,11 +43,6 @@ public class OrderItem implements Serializable {
     }
 
 
-    public BigDecimal getSubTotal() {
-        return price.multiply(BigDecimal.valueOf(quantity));
-    }
-
-
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;

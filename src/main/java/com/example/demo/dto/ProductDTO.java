@@ -29,9 +29,11 @@ public class ProductDTO implements Serializable {
     @Positive(message = "Price must be positive")
     @NotNull(message = "Price is required")
     private BigDecimal price;
-    private String imgURL;
+    private String imgUrl;
     private List<CategoryDTO> categories = new ArrayList<>();
 
+    @NotNull(message = "Stock is required")
+    @Positive(message = "Stock must be positive")
     private Integer stock;
 
 
@@ -40,9 +42,8 @@ public class ProductDTO implements Serializable {
         this.name = product.getName();
         this.description = product.getDescription();
         this.price = product.getPrice();
-        this.imgURL = product.getImgURL();
+        this.imgUrl = product.getImgUrl();
         this.stock = product.getStock();
-
 
         product.getCategories().forEach(category -> categories.add(new CategoryDTO(category)));
     }

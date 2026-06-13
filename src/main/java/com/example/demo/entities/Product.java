@@ -28,7 +28,7 @@ public class Product implements Serializable {
     private String description;
     @Column(nullable = false)
     private BigDecimal price;
-    private String imgURL;
+    private String imgUrl;
     @Column(nullable = false)
     private Integer stock;
 
@@ -42,12 +42,12 @@ public class Product implements Serializable {
     @OneToMany(mappedBy = "product")
     private Set<OrderItem> items = new HashSet<>();
 
-    public Product(Long id, String name, String description, BigDecimal price, String imgURL, Integer stock) {
+    public Product(Long id, String name, String description, BigDecimal price, String imgUrl, Integer stock) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.price = price;
-        this.imgURL = imgURL;
+        this.imgUrl = imgUrl;
         this.stock = stock;
     }
 

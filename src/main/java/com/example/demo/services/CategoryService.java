@@ -28,7 +28,7 @@ public class CategoryService {
 
     @Transactional(readOnly = true)
     public CategoryDTO findById(Long id) {
-        Category category = categoryRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(id));
+        Category category = categoryRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Resource not found with id " + id));
         return new CategoryDTO(category);
     }
 
@@ -46,7 +46,7 @@ public class CategoryService {
 
     @Transactional(rollbackFor = Exception.class)
     public CategoryDTO update(Long id, CategoryDTO dto) {
-        Category category = categoryRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(id));
+        Category category = categoryRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Resource not found with id " + id));
         updateData(dto, category);
         category = categoryRepository.save(category);
         return new CategoryDTO(category);
@@ -59,7 +59,7 @@ public class CategoryService {
     @Transactional(rollbackFor = Exception.class)
     public void delete(Long id) {
         Category category = categoryRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(id));
+                .orElseThrow(() -> new ResourceNotFoundException("Resource not found with id " + id));
         try {
             categoryRepository.delete(category);
             categoryRepository.flush();

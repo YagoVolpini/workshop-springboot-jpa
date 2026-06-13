@@ -1,12 +1,10 @@
 package com.example.demo.controllers.exceptions;
 
-import com.example.demo.services.exceptions.AlreadyExistsException;
-import com.example.demo.services.exceptions.BusinessException;
-import com.example.demo.services.exceptions.DatabaseException;
-import com.example.demo.services.exceptions.ResourceNotFoundException;
+import com.example.demo.services.exceptions.*;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -63,6 +61,22 @@ public class GlobalExceptionHandler {
         String error = "Business rule violation";
         HttpStatus status = HttpStatus.UNPROCESSABLE_ENTITY;
         StandardError errorResponse = new StandardError(Instant.now(), status.value(), error, e.getMessage(), request.getRequestURI());
+        return ResponseEntity.status(status).body(errorResponse);
+    }
+
+    @ExceptionHandler(ForbiddenException.class)
+    public ResponseEntity<StandardError> forbiddenException(ForbiddenException e, HttpServletRequest request) {
+        String error = "Access denied";
+        HttpStatus status = HttpStatus.FORBIDDEN;
+        StandardError errorResponse = new StandardError(Instant.now(), status.value(), error, e.getMessage(), request.getRequestURI());
+        return ResponseEntity.status(status).body(errorResponse);
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<StandardError> badCredentials(BadCredentialsException e, HttpServletRequest request) {
+        String error = "Authentication error";
+        HttpStatus status = HttpStatus.UNAUTHORIZED;
+        StandardError errorResponse = new StandardError(Instant.now(), status.value(), error, "Invalid credentials", request.getRequestURI());
         return ResponseEntity.status(status).body(errorResponse);
     }
 }

@@ -13,6 +13,7 @@ import com.example.demo.repositories.UserRepository;
 import com.example.demo.repositories.projections.ProductCustomersProjection;
 import com.example.demo.services.exceptions.BusinessException;
 import com.example.demo.services.exceptions.DatabaseException;
+import com.example.demo.services.exceptions.ForbiddenException;
 import com.example.demo.services.exceptions.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -31,22 +32,35 @@ public class OrderService {
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
     private final PaymentRepository paymentRepository;
+    private final UserService userService;
 
     @Transactional(readOnly = true)
     public Page<OrderDTO> findAll(Pageable pageable) {
-        return orderRepository.findAll(pageable).map(OrderDTO::new);
+        User user = userService.getAuthenticatedUser();
+
+        if (checkIsAdmin(user)) {
+            return orderRepository.findAll(pageable).map(OrderDTO::new);
+        } else {
+            return orderRepository.findByClient(user, pageable).map(OrderDTO::new);
+        }
+
     }
 
     @Transactional(readOnly = true)
     public OrderDTO findById(Long id) {
-        Order order = orderRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(id));
+        Order order = orderRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Resource not found with id " + id));
+        User user = userService.getAuthenticatedUser();
+        validateOrderBelongsToUser(order, user);
         return new OrderDTO(order);
     }
 
     @Transactional(rollbackFor = Exception.class)
     public OrderDTO insert(OrderInsertDTO dto) {
-        User client = userRepository.findById(dto.getClientId())
-                .orElseThrow(() -> new ResourceNotFoundException(dto.getClientId()));
+        User user = userService.getAuthenticatedUser();
+
+        User client = checkIsAdmin(user)
+                ? userRepository.findById(dto.getClientId()).orElseThrow(() -> new ResourceNotFoundException("User not found with id " + dto.getClientId()))
+                : user;
 
         Order order = new Order();
         order.setClient(client);
@@ -62,7 +76,7 @@ public class OrderService {
 
     private void processOrderItem(Order order, OrderItemInsertDTO itemDto) {
         Product product = productRepository.findById(itemDto.getProductId())
-                .orElseThrow(() -> new ResourceNotFoundException(itemDto.getProductId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Resource not found with id " + itemDto.getProductId()));
         if (product.getStock() < itemDto.getQuantity())
             throw new BusinessException(String.format("Stock insufficient for product '%s'. Available: %d, Requested: %d",
                     product.getName(), product.getStock(), itemDto.getQuantity()));
@@ -73,9 +87,43 @@ public class OrderService {
     }
 
     @Transactional(rollbackFor = Exception.class)
+    public OrderDTO update(Long id, OrderInsertDTO dto) {
+        Order order = orderRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Resource not found with id " + id));
+        User user = userService.getAuthenticatedUser();
+        validateOrderBelongsToUser(order, user);
+
+        if (order.getStatus() != OrderStatus.WAITING_PAYMENT) {
+            throw new BusinessException("You can only edit orders that are WAITING_PAYMENT.");
+        }
+
+        for (OrderItem item : order.getOrderItems()) {
+            Product product = item.getProduct();
+            product.setStock(product.getStock() + item.getQuantity());
+            productRepository.save(product);
+        }
+
+        order.getOrderItems().clear();
+
+        for (OrderItemInsertDTO itemDto : dto.getItems()) {
+            processOrderItem(order, itemDto);
+        }
+
+        return new OrderDTO(orderRepository.save(order));
+
+    }
+
+    @Transactional(rollbackFor = Exception.class)
     public OrderDTO updateStatus(Long id, OrderStatusDTO dto) {
         Order order = orderRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(id));
+                .orElseThrow(() -> new ResourceNotFoundException("Resource not found with id " + id));
+
+        User user = userService.getAuthenticatedUser();
+
+        validateOrderBelongsToUser(order, user);
+
+        if (!checkIsAdmin(user) && (dto.getStatus() != OrderStatus.CANCELED || order.getStatus() != OrderStatus.WAITING_PAYMENT)) {
+            throw new ForbiddenException("Invalid status transition. This update is not allowed for the current order state.");
+        }
 
         validateStatusTransition(order, dto.getStatus());
         handleStockRestore(order, dto.getStatus());
@@ -126,7 +174,9 @@ public class OrderService {
 
     @Transactional(rollbackFor = Exception.class)
     public void delete(Long id) {
-        Order order = orderRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(id));
+        Order order = orderRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Resource not found with id " + id));
+        User user = userService.getAuthenticatedUser();
+        validateOrderBelongsToUser(order, user);
 
         if (order.getStatus() != OrderStatus.WAITING_PAYMENT) {
             throw new DatabaseException("Cannot delete this order because its current status is: " + order.getStatus());
@@ -142,20 +192,40 @@ public class OrderService {
     @Transactional(readOnly = true)
     public Page<ProductCustomersProjection> findByIdOrNameProducts(Long id, String name, Pageable pageable) {
 
+        User user = userService.getAuthenticatedUser();
+        boolean isAdmin = checkIsAdmin(user);
+
+
         if (id == null && (name == null || name.isBlank())) {
             throw new BusinessException("Provide at least an id or a product name");
         }
 
         if (id != null) {
-            Page<ProductCustomersProjection> page = orderRepository.findByOrderItemsProductId(id, pageable);
-            if (page.isEmpty()) throw new ResourceNotFoundException(id);
+            Page<ProductCustomersProjection> page = isAdmin
+                    ? orderRepository.findByOrderItemsProductId(id, pageable)
+                    : orderRepository.findByOrderItemsProductIdAndClient(id, user, pageable);
             return page;
 
         }
 
-        Page<ProductCustomersProjection> page = orderRepository.findByOrderItemsProductNameContainingIgnoreCase(name, pageable);
+        Page<ProductCustomersProjection> page = isAdmin
+                ? orderRepository.findByOrderItemsProductNameContainingIgnoreCase(name, pageable)
+                : orderRepository.findByOrderItemsProductNameContainingIgnoreCaseAndClient(name, user, pageable);
         if (page.isEmpty())
             throw new BusinessException("No product found with name: " + name);
         return page;
+    }
+
+    private void validateOrderBelongsToUser(Order order, User user) {
+        boolean isAdmin = user.getAuthorities().stream()
+                .anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN"));
+
+        if (!isAdmin && !order.getClient().getId().equals(user.getId()))
+            throw new ForbiddenException("Access denied. This order belongs to another client.");
+    }
+
+    private boolean checkIsAdmin(User user) {
+        return user.getAuthorities().stream()
+                .anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN"));
     }
 }

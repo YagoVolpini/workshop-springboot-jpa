@@ -1,6 +1,6 @@
 package com.example.demo.dto;
 
-import com.example.demo.enums.OrderStatus;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -8,12 +8,11 @@ import lombok.Setter;
 
 import java.io.Serializable;
 
-
 @Getter
 @Setter
 @NoArgsConstructor
-public class OrderStatusDTO implements Serializable {
+public class PasswordUpdateDTO implements Serializable {
 
-    private OrderStatus status;
-
+    @NotBlank(message = "Password is required")
+    private String password;
 }
