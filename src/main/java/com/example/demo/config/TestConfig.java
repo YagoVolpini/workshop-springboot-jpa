@@ -47,6 +47,11 @@ public class TestConfig implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
 
+        if (userRepository.count() > 0) {
+            System.out.println("Database is already populated. Skipping data seed execution.");
+            return;
+        }
+
         Category cat1 = new Category(null, "Electronics");
         Category cat2 = new Category(null, "Computers");
         Category cat3 = new Category(null, "Books");

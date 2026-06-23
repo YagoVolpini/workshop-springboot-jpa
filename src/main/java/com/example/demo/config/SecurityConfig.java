@@ -31,6 +31,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/h2-console/**").permitAll()
+                        .requestMatchers("/v3/api-docs/**", "/v3/api-docs", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .requestMatchers(HttpMethod.GET, "/products/**", "/categories/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/users/**").authenticated()
                         .requestMatchers(HttpMethod.GET, "/payments/*", "/payments").hasRole("ADMIN")
@@ -40,8 +41,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/products/**", "/categories/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/users/**").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/products/**", "/categories/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/orders/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/users/**").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/orders/**","/users/**").authenticated()
                         .anyRequest().authenticated())
                 .headers(headers -> headers.frameOptions(frame -> frame.disable()))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
