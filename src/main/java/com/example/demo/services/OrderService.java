@@ -139,6 +139,7 @@ public class OrderService {
 
         if (order.getStatus() == OrderStatus.CANCELED
                 || order.getStatus() == OrderStatus.REFUNDED
+                || (order.getStatus() == OrderStatus.WAITING_PAYMENT && newStatus != OrderStatus.PAID && newStatus != OrderStatus.CANCELED)
                 || (order.getStatus() == OrderStatus.DELIVERED && newStatus != OrderStatus.REFUNDED)
                 || (order.getStatus() == OrderStatus.PAID && newStatus != OrderStatus.REFUNDED && newStatus != OrderStatus.SHIPPED)
                 || (order.getStatus() == OrderStatus.SHIPPED && newStatus != OrderStatus.REFUNDED && newStatus != OrderStatus.DELIVERED))
@@ -162,6 +163,7 @@ public class OrderService {
             payment.setMoment(Instant.now());
             payment.setOrder(order);
             order.setPayment(payment);
+            paymentRepository.save(payment);
 
         } else if ((newStatus == OrderStatus.CANCELED || newStatus == OrderStatus.REFUNDED)
                 && order.getPayment() != null) {
@@ -217,8 +219,7 @@ public class OrderService {
     }
 
     private void validateOrderBelongsToUser(Order order, User user) {
-        boolean isAdmin = user.getAuthorities().stream()
-                .anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN"));
+        boolean isAdmin = checkIsAdmin(user);
 
         if (!isAdmin && !order.getClient().getId().equals(user.getId()))
             throw new ForbiddenException("Access denied. This order belongs to another client.");
